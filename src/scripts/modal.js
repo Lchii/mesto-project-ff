@@ -15,10 +15,4 @@ function closeModalByEsc(evt) {
   }
 }
 
-function closeModalByOverlay(evt) {
-  if(element.classList.contains('popup')) {
-    closeModal(element);
-  }
-}
-
 export {openModal, closeModal, closeModalByEsc};
