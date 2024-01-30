@@ -30,3 +30,30 @@ const initialCards = [
       alt: "Скала на берегу замерзшего озера."
     }
 ];
+
+function createCard(card, like, openCard, deleteCard) {
+  const cardTemplate = document.querySelector('#card-template').content;
+  const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
+  const cardImage = cardElement.querySelector('.card__image');
+  cardImage.src = card.link;
+  cardImage.alt = card.alt;
+  cardElement.querySelector('.card__title').textContent = card.name;
+  cardElement.querySelector('.card__delete-button').addEventListener('click', deleteCard);
+  cardElement.querySelector('.card__like-button').addEventListener('click', like);
+  cardImage.addEventListener('click', openCard);
+  return cardElement;
+}
+
+function addCard(cardElement, list) {
+  list.append(cardElement);
+}
+
+function deleteCard(evt) {
+  evt.target.parentElement.remove();
+}
+
+function like(evt) {
+  evt.target.classList.toggle('card__like-button_is-active');
+}
+
+export { initialCards, createCard, addCard, like, deleteCard };
