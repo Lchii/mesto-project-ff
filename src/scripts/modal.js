@@ -15,4 +15,15 @@ function closeModalByEsc(evt) {
   }
 }
 
-export {openModal, closeModal, closeModalByEsc};
+function closeModalByOverlayClick(evt) {
+  if(evt.target.classList.contains('popup')) {
+    closeModal(evt.target);
+  }
+}
+
+function setCloseModalWindowEventListeners(modal) {
+  modal.querySelector('.popup__close').addEventListener('click', () => closeModal(modal));
+  modal.addEventListener('click', closeModalByOverlayClick);
+}
+
+export { openModal, closeModal, setCloseModalWindowEventListeners };
