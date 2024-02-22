@@ -1,6 +1,9 @@
-import { deleteCard, addLike, removeLike } from "./api";
+import { addLike, removeLike } from "./api";
+import { openModal } from "./modal";
+import { deleteCardPopup } from ".";
 
 const cardTemplate = document.querySelector('#card-template').content;
+let currentCard, currentCardId;
 
 function createCard(cardData, handleLikeClick, handleImageClick, handleDeleteClick) {
   const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
@@ -16,9 +19,9 @@ function createCard(cardData, handleLikeClick, handleImageClick, handleDeleteCli
 }
 
 function handleDeleteClick(evt, cardId) {
-  deleteCard(cardId)
-    .then(evt.target.closest('.card').remove())
-    .catch(err => console.log(err));
+  openModal(deleteCardPopup);
+  currentCardId = cardId;
+  currentCard = evt.target.closest('.card');
 }
 
 function handleLikeClick(evt, cardId) {
@@ -40,4 +43,4 @@ function handleLikeClick(evt, cardId) {
   }
 }
 
-export { createCard, handleLikeClick, handleDeleteClick };
+export { createCard, handleLikeClick, handleDeleteClick, currentCard, currentCardId };

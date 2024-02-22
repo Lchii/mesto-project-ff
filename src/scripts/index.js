@@ -1,8 +1,8 @@
 import '../pages/index.css';
-import { createCard, handleLikeClick, handleDeleteClick } from './card';
+import { createCard, handleLikeClick, handleDeleteClick, currentCard, currentCardId } from './card';
 import { openModal, closeModal, setCloseModalWindowEventListeners } from './modal';
 import { enableValidation, clearValidation } from './validation';
-import { getUserData, getInitialCards, updateUserData, postCard, updateAvatar } from './api';
+import { getUserData, getInitialCards, updateUserData, postCard, updateAvatar, deleteCard } from './api';
 
 const cardsContainer = document.querySelector('.places__list');
 
@@ -17,6 +17,7 @@ const editPopup = document.querySelector('.popup_type_edit');
 const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
 const newCardPopup = document.querySelector('.popup_type_new-card');
 const imagePopup = document.querySelector('.popup_type_image');
+export const deleteCardPopup = document.querySelector('.popup_type_delete');
 
 const image = imagePopup.querySelector('.popup__image');
 const caption = imagePopup.querySelector('.popup__caption');
@@ -31,6 +32,8 @@ const linkInput = newCardFormElement.querySelector('input[name=link]');
 
 const editAvatarFormElement = document.querySelector('form[name=edit-avatar]');
 const avatarLinkInput = editAvatarFormElement.querySelector('.popup__input_type_url');
+
+const deleteCardFormElement = document.querySelector('form[name=delete-card]');
 
 function addCard(cardElement, container) {
   container.append(cardElement);
@@ -111,6 +114,16 @@ function handleNewCardFormSubmit(evt) {
     .catch(err => console.log(err));
 }
 
+function handleDeleteCardFormSubmit(evt) {
+  evt.preventDefault();
+  deleteCard(currentCardId)
+  .then(() => {
+    currentCard.remove();
+    closeModal(deleteCardPopup);
+  })
+  .catch(err => console.log(err));
+}
+
 enableValidation({
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -128,6 +141,7 @@ addButton.addEventListener('click', () => openPopup(newCardPopup));
 editFormElement.addEventListener('submit', handleEditFormSubmit);
 newCardFormElement.addEventListener('submit', handleNewCardFormSubmit);
 editAvatarFormElement.addEventListener('submit', handleEditAvatarFormSubmit);
+deleteCardFormElement.addEventListener('submit', handleDeleteCardFormSubmit);
 
 popups.forEach(item => setCloseModalWindowEventListeners(item));
 
