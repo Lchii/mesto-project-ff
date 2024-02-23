@@ -67,7 +67,8 @@ function clearValidation(formElement, validationConfig) {
       hideInputError(formElement, inputElement, inputErrorClass);
     }
   });
+  formElement.reset();
   toggleButtonState(inputList, buttonElement, inactiveButtonClass);
 }
 
-export {enableValidation, clearValidation};
+export { enableValidation, clearValidation };

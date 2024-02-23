@@ -10,7 +10,7 @@ const userRequest = `${config.baseUrl}/users/me`;
 const cardsRequest = `${config.baseUrl}/cards`;
 const cardLikeRequest = `${cardsRequest}/likes`
 
-const getResult = (response) => {
+const handleResponse = (response) => {
   if(response.ok) {
     return response.json();
   }
@@ -21,14 +21,14 @@ const getUserData = () => {
   return fetch(userRequest, {
     headers: config.headers
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const getInitialCards = () => {
   return fetch(cardsRequest, {
     headers: config.headers
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const updateUserData = (name, about) => {
@@ -40,7 +40,7 @@ const updateUserData = (name, about) => {
       about: about
     })
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const postCard = (name, link) => {
@@ -52,7 +52,7 @@ const postCard = (name, link) => {
       link: link
     })
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const deleteCard = (cardId) => {
@@ -60,7 +60,7 @@ const deleteCard = (cardId) => {
     method: 'DELETE',
     headers: config.headers
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const addLike = (cardId) => {
@@ -68,7 +68,7 @@ const addLike = (cardId) => {
     method: 'PUT',
     headers: config.headers
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const removeLike = (cardId) => {
@@ -76,7 +76,7 @@ const removeLike = (cardId) => {
     method: 'DELETE',
     headers: config.headers
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 const updateAvatar = (avatarLink) => {
@@ -87,7 +87,7 @@ const updateAvatar = (avatarLink) => {
       avatar: avatarLink
     })
   })
-    .then(res => getResult(res));
+    .then(handleResponse);
 }
 
 export { getUserData, getInitialCards, updateUserData, postCard, deleteCard, addLike, removeLike, updateAvatar }

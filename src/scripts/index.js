@@ -4,6 +4,16 @@ import { openModal, closeModal, setCloseModalWindowEventListeners } from './moda
 import { enableValidation, clearValidation } from './validation';
 import { getUserData, getInitialCards, updateUserData, postCard, updateAvatar, deleteCard } from './api';
 
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error'
+};
+
+let userId;
+
 const cardsContainer = document.querySelector('.places__list');
 
 const profileTitle = document.querySelector('.profile__title');
@@ -40,37 +50,24 @@ function addCard(cardElement, container) {
 }
 
 function renderLoading(isLoading, button) {
-  if(isLoading) {
-    button.textContent = 'Сохранение...'; 
-  }
-  else {
-    button.textContent = 'Сохранить';
-  }
+  button.textContent = isLoading ? 'Сохранение...' : 'Сохранить';
 }
 
 function openPopup(popup) {
-  const form = popup.querySelector('.popup__form');
-  if(form != null) {
-    form.reset();
-  }
+  const formElement = popup.querySelector('.popup__form');
+  clearValidation(formElement, validationConfig);
   openModal(popup);
   if(popup === editPopup) {
     nameInput.value = profileTitle.textContent;
     jobInput.value = profileDescription.textContent;
   }
-  clearValidation(popup, {
-    inputSelector: '.popup__input',
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    inputErrorClass: 'popup__input_type_error'
-  });
 }
 
 function handleImageClick(evt) {
   const currentImage = evt.target;
   image.src = currentImage.src;
   image.alt = currentImage.alt;
-  caption.textContent = currentImage.closest('.card').querySelector('.card__title').textContent;
+  caption.textContent = currentImage.alt;
   openModal(imagePopup);
 }
 
@@ -82,10 +79,10 @@ function handleEditFormSubmit(evt) {
     .then(result => {
       profileTitle.textContent = result.name;
       profileDescription.textContent = result.about;
-      renderLoading(false, button);
       closeModal(editPopup);
     })
     .catch(err => console.log(err))
+    .finally(() => renderLoading(false, button));
 }
 
 function handleEditAvatarFormSubmit(evt) {
@@ -95,10 +92,10 @@ function handleEditAvatarFormSubmit(evt) {
   updateAvatar(avatarLinkInput.value)
     .then(result => {
       profileImage.style.backgroundImage = `url(\'${result.avatar}\')`;
-      renderLoading(false, button);
       closeModal(editAvatarPopup);
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err))
+    .finally(() => renderLoading(false, button));
 }
 
 function handleNewCardFormSubmit(evt) {
@@ -107,11 +104,11 @@ function handleNewCardFormSubmit(evt) {
   renderLoading(true, button);
   postCard(placeInput.value, linkInput.value)
     .then(result => {
-      cardsContainer.prepend(createCard(result, handleLikeClick, handleImageClick, handleDeleteClick));
-      renderLoading(false, button);
+      cardsContainer.prepend(createCard(result, handleLikeClick, handleImageClick, handleDeleteClick, userId));
       closeModal(newCardPopup);
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err))
+    .finally(() => renderLoading(false, button));
 }
 
 function handleDeleteCardFormSubmit(evt) {
@@ -124,14 +121,7 @@ function handleDeleteCardFormSubmit(evt) {
   .catch(err => console.log(err));
 }
 
-enableValidation({
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-}); 
-
+enableValidation(validationConfig); 
 
 editButton.addEventListener('click', () => openPopup(editPopup));
 profileImage.addEventListener('click', () => openPopup(editAvatarPopup));
@@ -143,7 +133,7 @@ newCardFormElement.addEventListener('submit', handleNewCardFormSubmit);
 editAvatarFormElement.addEventListener('submit', handleEditAvatarFormSubmit);
 deleteCardFormElement.addEventListener('submit', handleDeleteCardFormSubmit);
 
-popups.forEach(item => setCloseModalWindowEventListeners(item));
+popups.forEach(setCloseModalWindowEventListeners);
 
 Promise.all([getUserData(), getInitialCards()])
   .then(results => {
@@ -151,19 +141,8 @@ Promise.all([getUserData(), getInitialCards()])
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
     profileImage.style.backgroundImage = `url(\'${userData.avatar}\')`;
-
-    cardsList.forEach(cardData => {
-      const cardElement = createCard(cardData, handleLikeClick, handleImageClick, handleDeleteClick);
-      if(cardData.owner['_id'] != userData['_id']){
-        cardElement.querySelector('.card__delete-button').style.display = 'none';
-      }
-      cardData.likes.forEach(user => {
-        if(user['_id'] === userData['_id']) {
-          cardElement.querySelector('.card__like-button').classList.add('card__like-button_is-active');
-        }
-      });
-      addCard(cardElement, cardsContainer);
-    });
+    userId = userData['_id'];
+    cardsList.forEach(cardData => addCard(createCard(cardData, handleLikeClick, handleImageClick, handleDeleteClick, userId), cardsContainer));
   })
   .catch(err => console.log(err));
 
